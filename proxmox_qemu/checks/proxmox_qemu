@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+
+# (c) 2017 Precedent Communications
+#          Robertas Reiciunas <robertas.reiciunas@precedent.com>
+
+# Example output
+#<<<proxmox_qemu>>>
+#103 Scully running 8192 250.00 4470 6.6 8.5
+#150 hermes running 2048 80.00 4828 6.6 2.2
+#160 TeamPasswordManager-160 running 2048 32.00 5141 0.0 1.4
+
+# Output fields
+
+# Inventory
+def inventory_proxmox_qemu(checkname, info):
+    inventory = []
+    for line in info:
+        # Only VM's that were running during discovery are monitored
+        if line[2] == 'running':
+            inventory.append( ('-'.join([line[0], line[1]]), None) )
+    return inventory
+
+# Check
+def check_proxmox_qemu(item, param, info):
+    for line in info:
+        perfdata = []
+        if '-'.join([line[0], line[1]]) == item:
+            vmid = line[0]
+            name = line[1]
+            status = line[2]
+            ram = line[3]
+            bootdisk = line[4]
+            pid = line[5]
+            infotext = "%s (PID: %s, RAM: %.2f GB, Bootdisk: %s GB)" % (status, pid, float(ram)/1024, bootdisk)
+            if status == 'running':
+                perfdata.append( ( "CPU", "%.2f" % float(line[6]) ) )
+                perfdata.append( ( "RAM", "%d" % float(line[7]) ) )
+                return (0, "OK - %s" % (infotext,), perfdata)
+            else:
+                return (2, "CRITICAL - %s" % (infotext,), perfdata)
+    return (3, "UNKNOWN - VM %s not found in agent output" % item)
+
+# Declare the check to Check_MK
+check_info["proxmox_qemu"] = {
+    "check_function" : check_proxmox_qemu,
+    "inventory_function" : inventory_proxmox_qemu,
+    "service_description" : "QEMU VM %s",
+    "has_perfdata" : True,
+    "group" : "proxmox",
+    "handle_real_time_checks" : True,
+}

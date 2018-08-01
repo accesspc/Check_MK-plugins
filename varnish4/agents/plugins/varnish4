@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if type varnishstat >/dev/null; then
+   echo "<<<varnish4>>>"
+   varnishstat -1
+fi
+

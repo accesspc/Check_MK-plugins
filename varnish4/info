@@ -1,0 +1,12 @@
+{'author': u'Robertas Reiciunas',
+ 'description': u'Agent plugin to gather Varnish v4 statistics\n',
+ 'download_url': 'https://some.link',
+ 'files': {'agents': ['bakery/varnish4', 'plugins/varnish4'],
+           'checks': ['varnish4'],
+           },
+ 'name': 'varnish4',
+ 'num_files': 3,
+ 'title': u'Varnish v4 statistics',
+ "version": "1.0.7",
+ 'version.min_required': '1.4.0',
+ 'version.packaged': '1.4.0p9'}

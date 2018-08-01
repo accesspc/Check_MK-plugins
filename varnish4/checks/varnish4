@@ -1,0 +1,727 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+
+# Special thanks to Rene Stolle (r.stolle@funkemedien.de)
+
+#   .--agent output--------------------------------------------------------.
+#   |                           _                 _               _        |
+#   |     __ _  __ _  ___ _ __ | |_    ___  _   _| |_ _ __  _   _| |_      |
+#   |    / _` |/ _` |/ _ \ '_ \| __|  / _ \| | | | __| '_ \| | | | __|     |
+#   |   | (_| | (_| |  __/ | | | |_  | (_) | |_| | |_| |_) | |_| | |_      |
+#   |    \__,_|\__, |\___|_| |_|\__|  \___/ \__,_|\__| .__/ \__,_|\__|     |
+#   |          |___/                                 |_|                   |
+#   '----------------------------------------------------------------------'
+
+# <<<varnish4>>>
+# MAIN.uptime              18246         1.00 Child process uptime
+# MAIN.sess_conn           65914         3.61 Sessions accepted
+# MAIN.sess_drop               0         0.00 Sessions dropped
+# MAIN.sess_fail               0         0.00 Session accept failures
+# MAIN.client_req_400            0         0.00 Client requests received, subject to 400 errors
+# MAIN.client_req_417            0         0.00 Client requests received, subject to 417 errors
+# MAIN.client_req           440279        24.13 Good client requests received
+# MAIN.cache_hit            103690         5.68 Cache hits
+# MAIN.cache_hitpass          1893         0.10 Cache hits for pass
+# MAIN.cache_miss            18580         1.02 Cache misses
+# MAIN.backend_conn              0         0.00 Backend conn. success
+# MAIN.backend_unhealthy            0         0.00 Backend conn. not attempted
+# MAIN.backend_busy                 0         0.00 Backend conn. too many
+# MAIN.backend_fail                 0         0.00 Backend conn. failures
+# MAIN.backend_reuse           341571        18.72 Backend conn. reuses
+# MAIN.backend_recycle         341992        18.74 Backend conn. recycles
+# MAIN.backend_retry                0         0.00 Backend conn. retry
+# MAIN.fetch_head                   3         0.00 Fetch no body (HEAD)
+# MAIN.fetch_length            339998        18.63 Fetch with Length
+# MAIN.fetch_chunked              788         0.04 Fetch chunked
+# MAIN.fetch_eof                  134         0.01 Fetch EOF
+# MAIN.fetch_bad                    0         0.00 Fetch bad T-E
+# MAIN.fetch_none                   0         0.00 Fetch no body
+# MAIN.fetch_1xx                    0         0.00 Fetch no body (1xx)
+# MAIN.fetch_204                    0         0.00 Fetch no body (204)
+# MAIN.fetch_304                 1278         0.07 Fetch no body (304)
+# MAIN.fetch_failed                16         0.00 Fetch failed (all causes)
+# MAIN.fetch_no_thread              0         0.00 Fetch failed (no thread)
+# MAIN.pools                        2          .   Number of thread pools
+# MAIN.threads                    200          .   Total number of threads
+# MAIN.threads_limited              0         0.00 Threads hit max
+# MAIN.threads_created            200         0.01 Threads created
+# MAIN.threads_destroyed            0         0.00 Threads destroyed
+# MAIN.threads_failed               0         0.00 Thread creation failed
+# MAIN.thread_queue_len             0          .   Length of session queue
+# MAIN.busy_sleep                  19         0.00 Number of requests sent to sleep on busy objhdr
+# MAIN.busy_wakeup                 19         0.00 Number of requests woken after sleep on busy objhdr
+# MAIN.busy_killed                  0         0.00 Number of requests killed after sleep on busy objhdr
+# MAIN.sess_queued                  0         0.00 Sessions queued for thread
+# MAIN.sess_dropped                 0         0.00 Sessions dropped for thread
+# MAIN.n_object                  5370          .   object structs made
+# MAIN.n_vampireobject              0          .   unresurrected objects
+# MAIN.n_objectcore              5273          .   objectcore structs made
+# MAIN.n_objecthead              5537          .   objecthead structs made
+# MAIN.n_waitinglist              146          .   waitinglist structs made
+# MAIN.n_backend                    1          .   Number of backends
+# MAIN.n_expired                13308          .   Number of expired objects
+# MAIN.n_lru_nuked                  0          .   Number of LRU nuked objects
+# MAIN.n_lru_moved              88111          .   Number of LRU moved objects
+# MAIN.losthdr                      0         0.00 HTTP header overflows
+# MAIN.s_sess                   65914         3.61 Total sessions seen
+# MAIN.s_req                   440279        24.13 Total requests seen
+# MAIN.s_pipe                       0         0.00 Total pipe sessions seen
+# MAIN.s_pass                  318009        17.43 Total pass-ed requests seen
+# MAIN.s_fetch                 336589        18.45 Total backend fetches initiated
+# MAIN.s_synth                      4         0.00 Total synthethic responses made
+# MAIN.s_req_hdrbytes       349964692     19180.35 Request header bytes
+# MAIN.s_req_bodybytes          72714         3.99 Request body bytes
+# MAIN.s_resp_hdrbytes      171512668      9400.01 Response header bytes
+# MAIN.s_resp_bodybytes   14172153235    776726.58 Response body bytes
+# MAIN.s_pipe_hdrbytes              0         0.00 Pipe request header bytes
+# MAIN.s_pipe_in                    0         0.00 Piped bytes from client
+# MAIN.s_pipe_out                   0         0.00 Piped bytes to client
+# MAIN.sess_closed               4089         0.22 Session Closed
+# MAIN.sess_closed_err              0         0.00 Session Closed with error
+# MAIN.sess_readahead               0         0.00 Session Read Ahead
+# MAIN.sess_herd                    0         0.00 Session herd
+# MAIN.sc_rem_close             64400         3.53 Session OK  REM_CLOSE
+# MAIN.sc_req_close                 0         0.00 Session OK  REQ_CLOSE
+# MAIN.sc_req_http10                0         0.00 Session Err REQ_HTTP10
+# MAIN.sc_rx_bad                    0         0.00 Session Err RX_BAD
+# MAIN.sc_rx_body                   0         0.00 Session Err RX_BODY
+# MAIN.sc_rx_junk                   0         0.00 Session Err RX_JUNK
+# MAIN.sc_rx_overflow               0         0.00 Session Err RX_OVERFLOW
+# MAIN.sc_rx_timeout                0         0.00 Session Err RX_TIMEOUT
+# MAIN.sc_tx_pipe                   0         0.00 Session OK  TX_PIPE
+# MAIN.sc_tx_error                  0         0.00 Session Err TX_ERROR
+# MAIN.sc_tx_eof                    0         0.00 Session OK  TX_EOF
+# MAIN.sc_resp_close             1489         0.08 Session OK  RESP_CLOSE
+# MAIN.sc_overload                  0         0.00 Session Err OVERLOAD
+# MAIN.sc_pipe_overflow             0         0.00 Session Err PIPE_OVERFLOW
+# MAIN.sc_range_short               0         0.00 Session Err RANGE_SHORT
+# MAIN.shm_records           42311072      2318.92 SHM records
+# MAIN.shm_writes             1545146        84.68 SHM writes
+# MAIN.shm_flushes                 11         0.00 SHM flushes due to overflow
+# MAIN.shm_cont                  8248         0.45 SHM MTX contention
+# MAIN.shm_cycles                  20         0.00 SHM cycles through buffer
+# MAIN.backend_req             342199        18.75 Backend requests made
+# MAIN.n_vcl                        1         0.00 Number of loaded VCLs in total
+# MAIN.n_vcl_avail                  1         0.00 Number of VCLs available
+# MAIN.n_vcl_discard                0         0.00 Number of discarded VCLs
+# MAIN.bans                         1          .   Count of bans
+# MAIN.bans_completed               1          .   Number of bans marked 'completed'
+# MAIN.bans_obj                     0          .   Number of bans using obj.*
+# MAIN.bans_req                     0          .   Number of bans using req.*
+# MAIN.bans_added                   1         0.00 Bans added
+# MAIN.bans_deleted                 0         0.00 Bans deleted
+# MAIN.bans_tested                  0         0.00 Bans tested against objects (lookup)
+# MAIN.bans_obj_killed              0         0.00 Objects killed by bans (lookup)
+# MAIN.bans_lurker_tested            0         0.00 Bans tested against objects (lurker)
+# MAIN.bans_tests_tested             0         0.00 Ban tests tested against objects (lookup)
+# MAIN.bans_lurker_tests_tested            0         0.00 Ban tests tested against objects (lurker)
+# MAIN.bans_lurker_obj_killed              0         0.00 Objects killed by bans (lurker)
+# MAIN.bans_dups                           0         0.00 Bans superseded by other bans
+# MAIN.bans_lurker_contention              0         0.00 Lurker gave way for lookup
+# MAIN.bans_persisted_bytes               16          .   Bytes used by the persisted ban lists
+# MAIN.bans_persisted_fragmentation            0          .   Extra bytes in persisted ban lists due to fragmentation
+# MAIN.n_purges                                0          .   Number of purge operations executed
+# MAIN.n_obj_purged                            0          .   Number of purged objects
+# MAIN.exp_mailed                          29533         1.62 Number of objects mailed to expiry thread
+# MAIN.exp_received                        29533         1.62 Number of objects received by expiry thread
+# MAIN.hcb_nolock                         124163         6.80 HCB Lookups without lock
+# MAIN.hcb_lock                            18516         1.01 HCB Lookups with lock
+# MAIN.hcb_insert                          18516         1.01 HCB Inserts
+# MAIN.esi_errors                              0         0.00 ESI parse errors (unlock)
+# MAIN.esi_warnings                            0         0.00 ESI parse warnings (unlock)
+# MAIN.vmods                                   0          .   Loaded VMODs
+# MAIN.n_gzip                                  0         0.00 Gzip operations
+# MAIN.n_gunzip                           274262        15.03 Gunzip operations
+# MAIN.vsm_free                           973744          .   Free VSM space
+# MAIN.vsm_used                         83960864          .   Used VSM space
+# MAIN.vsm_cooling                             0          .   Cooling VSM space
+# MAIN.vsm_overflow                            0          .   Overflow VSM space
+# MAIN.vsm_overflowed                          0         0.00 Overflowed VSM space
+# MGT.uptime                               18247         1.00 Management process uptime
+# MGT.child_start                              1         0.00 Child process started
+# MGT.child_exit                               0         0.00 Child process normal exit
+# MGT.child_stop                               0         0.00 Child process unexpected exit
+# MGT.child_died                               0         0.00 Child process died (signal)
+# MGT.child_dump                               0         0.00 Child process core dumped
+# MGT.child_panic                              0         0.00 Child process panic
+# MEMPOOL.busyobj.live                         0          .   In use
+# MEMPOOL.busyobj.pool                        12          .   In Pool
+# MEMPOOL.busyobj.sz_wanted                65536          .   Size requested
+# MEMPOOL.busyobj.sz_actual                65504          .   Size allocated
+# MEMPOOL.busyobj.allocs                  342201        18.75 Allocations
+# MEMPOOL.busyobj.frees                   342201        18.75 Frees
+# MEMPOOL.busyobj.recycle                 342144        18.75 Recycled from pool
+# MEMPOOL.busyobj.timeout                   5024         0.28 Timed out from pool
+# MEMPOOL.busyobj.toosmall                     0         0.00 Too small to recycle
+# MEMPOOL.busyobj.surplus                      0         0.00 Too many for pool
+# MEMPOOL.busyobj.randry                      57         0.00 Pool ran dry
+# MEMPOOL.req0.live                           15          .   In use
+# MEMPOOL.req0.pool                           10          .   In Pool
+# MEMPOOL.req0.sz_wanted                   65536          .   Size requested
+# MEMPOOL.req0.sz_actual                   65504          .   Size allocated
+# MEMPOOL.req0.allocs                      32992         1.81 Allocations
+# MEMPOOL.req0.frees                       32977         1.81 Frees
+# MEMPOOL.req0.recycle                     32116         1.76 Recycled from pool
+# MEMPOOL.req0.timeout                     11120         0.61 Timed out from pool
+# MEMPOOL.req0.toosmall                        0         0.00 Too small to recycle
+# MEMPOOL.req0.surplus                         0         0.00 Too many for pool
+# MEMPOOL.req0.randry                        876         0.05 Pool ran dry
+# MEMPOOL.sess0.live                          15          .   In use
+# MEMPOOL.sess0.pool                          13          .   In Pool
+# MEMPOOL.sess0.sz_wanted                    512          .   Size requested
+# MEMPOOL.sess0.sz_actual                    480          .   Size allocated
+# MEMPOOL.sess0.allocs                     32992         1.81 Allocations
+# MEMPOOL.sess0.frees                      32977         1.81 Frees
+# MEMPOOL.sess0.recycle                    32137         1.76 Recycled from pool
+# MEMPOOL.sess0.timeout                    11129         0.61 Timed out from pool
+# MEMPOOL.sess0.toosmall                       0         0.00 Too small to recycle
+# MEMPOOL.sess0.surplus                        0         0.00 Too many for pool
+# MEMPOOL.sess0.randry                       855         0.05 Pool ran dry
+# MEMPOOL.req1.live                           16          .   In use
+# MEMPOOL.req1.pool                            9          .   In Pool
+# MEMPOOL.req1.sz_wanted                   65536          .   Size requested
+# MEMPOOL.req1.sz_actual                   65504          .   Size allocated
+# MEMPOOL.req1.allocs                      32953         1.81 Allocations
+# MEMPOOL.req1.frees                       32937         1.81 Frees
+# MEMPOOL.req1.recycle                     32092         1.76 Recycled from pool
+# MEMPOOL.req1.timeout                     11139         0.61 Timed out from pool
+# MEMPOOL.req1.toosmall                        0         0.00 Too small to recycle
+# MEMPOOL.req1.surplus                         0         0.00 Too many for pool
+# MEMPOOL.req1.randry                        861         0.05 Pool ran dry
+# MEMPOOL.sess1.live                          16          .   In use
+# MEMPOOL.sess1.pool                          10          .   In Pool
+# MEMPOOL.sess1.sz_wanted                    512          .   Size requested
+# MEMPOOL.sess1.sz_actual                    480          .   Size allocated
+# MEMPOOL.sess1.allocs                     32953         1.81 Allocations
+# MEMPOOL.sess1.frees                      32937         1.81 Frees
+# MEMPOOL.sess1.recycle                    32181         1.76 Recycled from pool
+# MEMPOOL.sess1.timeout                    11102         0.61 Timed out from pool
+# MEMPOOL.sess1.toosmall                       0         0.00 Too small to recycle
+# MEMPOOL.sess1.surplus                        0         0.00 Too many for pool
+# MEMPOOL.sess1.randry                       772         0.04 Pool ran dry
+# SMA.s0.c_req                             48756         2.67 Allocator requests
+# SMA.s0.c_fail                                0         0.00 Allocator failures
+# SMA.s0.c_bytes                      1293491825     70891.80 Bytes allocated
+# SMA.s0.c_freed                      1077543698     59056.43 Bytes freed
+# SMA.s0.g_alloc                           12088          .   Allocations outstanding
+# SMA.s0.g_bytes                       215948127          .   Bytes outstanding
+# SMA.s0.g_space                        52487329          .   Bytes available
+# SMA.Transient.c_req                     637761        34.95 Allocator requests
+# SMA.Transient.c_fail                         0         0.00 Allocator failures
+# SMA.Transient.c_bytes              11278243063    618121.40 Bytes allocated
+# SMA.Transient.c_freed              11278240463    618121.26 Bytes freed
+# SMA.Transient.g_alloc                        5          .   Allocations outstanding
+# SMA.Transient.g_bytes                     2600          .   Bytes outstanding
+# SMA.Transient.g_space                        0          .   Bytes available
+# VBE.boot.default.happy                       0          .   Happy health probes
+# VBE.boot.default.bereq_hdrbytes      312430871     17123.25 Request header bytes
+# VBE.boot.default.bereq_bodybytes         72714         3.99 Request body bytes
+# VBE.boot.default.beresp_hdrbytes     100340721      5499.33 Response header bytes
+# VBE.boot.default.beresp_bodybytes  12358250869    677312.88 Response body bytes
+# VBE.boot.default.pipe_hdrbytes               0         0.00 Pipe request header bytes
+# VBE.boot.default.pipe_out                    0         0.00 Piped bytes to backend
+# VBE.boot.default.pipe_in                     0         0.00 Piped bytes from backend
+# VBE.boot.default.conn                   342201          .   Concurrent connections to backend
+# VBE.boot.default.req                    342201        18.75 Backend requests sent
+# LCK.backend.creat                            2         0.00 Created locks
+# LCK.backend.destroy                          0         0.00 Destroyed locks
+# LCK.backend.locks                       684403        37.51 Lock Operations
+# LCK.backend_tcp.creat                        1         0.00 Created locks
+# LCK.backend_tcp.destroy                      0         0.00 Destroyed locks
+# LCK.backend_tcp.locks                  1367937        74.97 Lock Operations
+# LCK.ban.creat                                1         0.00 Created locks
+# LCK.ban.destroy                              0         0.00 Destroyed locks
+# LCK.ban.locks                           362500        19.87 Lock Operations
+# LCK.busyobj.creat                       342197        18.75 Created locks
+# LCK.busyobj.destroy                     342199        18.75 Destroyed locks
+# LCK.busyobj.locks                      2945731       161.45 Lock Operations
+# LCK.cli.creat                                1         0.00 Created locks
+# LCK.cli.destroy                              0         0.00 Destroyed locks
+# LCK.cli.locks                             6095         0.33 Lock Operations
+# LCK.exp.creat                                1         0.00 Created locks
+# LCK.exp.destroy                              0         0.00 Destroyed locks
+# LCK.exp.locks                           140595         7.71 Lock Operations
+# LCK.hcb.creat                                1         0.00 Created locks
+# LCK.hcb.destroy                              0         0.00 Destroyed locks
+# LCK.hcb.locks                            31923         1.75 Lock Operations
+# LCK.lru.creat                                2         0.00 Created locks
+# LCK.lru.destroy                              0         0.00 Destroyed locks
+# LCK.lru.locks                           160789         8.81 Lock Operations
+# LCK.mempool.creat                            5         0.00 Created locks
+# LCK.mempool.destroy                          0         0.00 Destroyed locks
+# LCK.mempool.locks                      1099996        60.29 Lock Operations
+# LCK.objhdr.creat                         18619         1.02 Created locks
+# LCK.objhdr.destroy                       13081         0.72 Destroyed locks
+# LCK.objhdr.locks                       4653752       255.06 Lock Operations
+# LCK.pipestat.creat                           1         0.00 Created locks
+# LCK.pipestat.destroy                         0         0.00 Destroyed locks
+# LCK.pipestat.locks                           0         0.00 Lock Operations
+# LCK.sess.creat                           65943         3.61 Created locks
+# LCK.sess.destroy                         65913         3.61 Destroyed locks
+# LCK.sess.locks                              56         0.00 Lock Operations
+# LCK.smp.creat                                0         0.00 Created locks
+# LCK.smp.destroy                              0         0.00 Destroyed locks
+# LCK.smp.locks                                0         0.00 Lock Operations
+# LCK.vbe.creat                                1         0.00 Created locks
+# LCK.vbe.destroy                              0         0.00 Destroyed locks
+# LCK.vbe.locks                             6085         0.33 Lock Operations
+# LCK.vcapace.creat                            1         0.00 Created locks
+# LCK.vcapace.destroy                          0         0.00 Destroyed locks
+# LCK.vcapace.locks                            0         0.00 Lock Operations
+# LCK.vcl.creat                                1         0.00 Created locks
+# LCK.vcl.destroy                              0         0.00 Destroyed locks
+# LCK.vcl.locks                           691143        37.88 Lock Operations
+# LCK.vxid.creat                               1         0.00 Created locks
+# LCK.vxid.destroy                             0         0.00 Destroyed locks
+# LCK.vxid.locks                             146         0.01 Lock Operations
+# LCK.waiter.creat                             2         0.00 Created locks
+# LCK.waiter.destroy                           0         0.00 Destroyed locks
+# LCK.waiter.locks                       1032410        56.58 Lock Operations
+# LCK.wq.creat                                 3         0.00 Created locks
+# LCK.wq.destroy                               0         0.00 Destroyed locks
+# LCK.wq.locks                           1250366        68.53 Lock Operations
+# LCK.wstat.creat                              1         0.00 Created locks
+# LCK.wstat.destroy                            0         0.00 Destroyed locks
+# LCK.wstat.locks                         448823        24.60 Lock Operations
+# LCK.sma.creat                                2         0.00 Created locks
+# LCK.sma.destroy                              0         0.00 Destroyed locks
+# LCK.sma.locks                          1360941        74.59 Lock Operations
+
+#.
+#   .--uptime--------------------------------------------------------------.
+#   |                              _   _                                   |
+#   |                  _   _ _ __ | |_(_)_ __ ___   ___                    |
+#   |                 | | | | '_ \| __| | '_ ` _ \ / _ \                   |
+#   |                 | |_| | |_) | |_| | | | | | |  __/                   |
+#   |                  \__,_| .__/ \__|_|_| |_| |_|\___|                   |
+#   |                       |_|                                            |
+#   +----------------------------------------------------------------------+
+#   |                             main check                               |
+#   '----------------------------------------------------------------------'
+
+
+def parse_varnish4(info):
+    parsed = {}
+    for line in info:
+        if "MAIN." in line[0]:
+            line = [s.replace('MAIN.', '') for s in line]
+        
+        if "." in line[0]:
+            what, what_item = line[0].split(".", 1)
+        elif "_" in line[0]:
+            what, what_item = line[0].split("_", 1)
+        else:
+            what, what_item = line[0], None
+
+        if what.lower() == line[3].lower():
+            descr = " ".join(line[4:]).replace("/", " ")
+        else:
+            descr = " ".join(line[3:]).replace("/", " ")
+
+        if what_item:
+            parsed.setdefault(what, {})
+            parsed[what].setdefault(what_item, (float(line[1]), descr))
+        else:
+            #parsed.setdefault(what, (float(line[1]), descr))
+            parsed.setdefault(what, {})
+            parsed[what].setdefault(0, (float(line[1]), descr))
+    
+    return parsed
+
+
+def inventory_varnish4_uptime(parsed):
+    if "uptime" in parsed:
+        return [(None, None)]
+
+
+def check_varnish4_uptime(_no_item, _no_params, parsed):
+    if "uptime" in parsed:
+        return check_uptime_seconds(_no_params, parsed["uptime"][0][0])
+
+
+check_info["varnish4"] = {
+    "parse_function"        : parse_varnish4,
+    "inventory_function"    : inventory_varnish4_uptime,
+    "check_function"        : check_varnish4_uptime,
+    "service_description"   : "Varnish4 Uptime",
+    "has_perfdata"          : True,
+    "includes"              : [ "uptime.include" ],
+}
+
+
+#.
+#   .--common--------------------------------------------------------------.
+#   |                                                                      |
+#   |               ___ ___  _ __ ___  _ __ ___   ___  _ __                |
+#   |              / __/ _ \| '_ ` _ \| '_ ` _ \ / _ \| '_ \               |
+#   |             | (_| (_) | | | | | | | | | | | (_) | | | |              |
+#   |              \___\___/|_| |_| |_|_| |_| |_|\___/|_| |_|              |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+def inventory_varnish4(parsed, what, needed_keys):
+    if what in parsed:
+        needed_keys_avail = True
+        for needed_key in needed_keys:
+            if needed_key not in parsed[what]:
+                needed_keys_avail = False
+        if needed_keys_avail == True:
+            return [ (None, {}) ]
+
+
+# use selection to get list of keys from parsed[what] or in case of None all keys
+def check_varnish4_stats(_no_item, params, parsed, what, selection):
+    if what in parsed:
+        this_time = time.time()
+
+        whatitemlist = parsed[what]
+        if selection:
+            whatitemlist = [ whatitem
+                for key in selection
+                for whatitem in whatitemlist
+                if whatitem.startswith(key)
+            ]
+
+        for whatitem in whatitemlist:
+            state = 0
+            reading, descr = parsed[what][whatitem]
+            rate = get_rate("varnish.%s.%s" % (what, whatitem), this_time, reading)
+            infotext = "%0.1f %s/s" % (rate, descr)
+
+            perfvar = "varnish_%s_%s_rate" % (what, whatitem)
+            if perfvar.startswith("varnish_n_wrk"):
+                perfvar = perfvar.replace("n_wrk", "worker")
+            elif perfvar.startswith("varnish_n_"):
+                perfvar = perfvar.replace("n_", "objects_")
+            perfdata = []
+
+            if params.get(whatitem):
+                warn, crit = params[whatitem]
+                if rate >= crit:
+                    state = 2
+                elif rate >= warn:
+                    state = 1
+                if state > 0:
+                    infotext += " (warn/crit at %s/%s)" % (warn, crit)
+                perfdata.append((perfvar, rate, warn, crit))
+            else:
+                perfdata.append((perfvar, rate))
+
+            yield state, infotext, perfdata
+
+
+def check_varnish4_ratio(_no_item, params, parsed, what, ratio_info):
+    if what in parsed:
+        state = 0
+        ratio = 0.0
+        total = parsed[what][ratio_info[0]][0] + parsed[what][ratio_info[1]][0]
+        if total > 0:
+            ratio = parsed[what][ratio_info[0]][0] / total * 100
+
+        infotext   = "%.1f%%" % ratio
+        warn, crit = params["levels_lower"]
+
+        if ratio < crit:
+            state = 2
+        elif ratio < warn:
+            state = 1
+        if state > 0:
+            infotext += " (warn/crit below %.1f%%/%.1f%%)" % (warn, crit)
+
+        return state, infotext, [(ratio_info[2], ratio, warn, crit)]
+
+
+#.
+#   .--cache---------------------------------------------------------------.
+#   |                                     _                                |
+#   |                       ___ __ _  ___| |__   ___                       |
+#   |                      / __/ _` |/ __| '_ \ / _ \                      |
+#   |                     | (_| (_| | (__| | | |  __/                      |
+#   |                      \___\__,_|\___|_| |_|\___|                      |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+
+check_info["varnish4.cache"] = {
+    "inventory_function"      : lambda parsed: \
+        inventory_varnish4(parsed, "cache", ["miss"]),
+    "check_function"          : lambda item, params, parsed: \
+        check_varnish4_stats(item, params, parsed, "cache", None),
+    "service_description"     : "Varnish4 Cache",
+    "group"                   : "varnish4_cache",
+    "has_perfdata"            : True,
+}
+
+
+#.
+#   .--client--------------------------------------------------------------.
+#   |                            _ _            _                          |
+#   |                        ___| (_) ___ _ __ | |_                        |
+#   |                       / __| | |/ _ \ '_ \| __|                       |
+#   |                      | (__| | |  __/ | | | |_                        |
+#   |                       \___|_|_|\___|_| |_|\__|                       |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+
+check_info["varnish4.client"] = {
+    "inventory_function"  : lambda parsed: \
+        inventory_varnish4(parsed, "client", ["req"]),
+    "check_function"      : lambda item, params, parsed: \
+        check_varnish4_stats(item, params, parsed, "client", None),
+    "service_description" : "Varnish4 Client",
+    "group"               : "varnish4_client",
+    "has_perfdata"        : True,
+}
+
+
+#.
+#   .--backend-------------------------------------------------------------.
+#   |                _                _                  _                 |
+#   |               | |__   __ _  ___| | _____ _ __   __| |                |
+#   |               | '_ \ / _` |/ __| |/ / _ \ '_ \ / _` |                |
+#   |               | |_) | (_| | (__|   <  __/ | | | (_| |                |
+#   |               |_.__/ \__,_|\___|_|\_\___|_| |_|\__,_|                |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+
+check_info["varnish4.backend"] = {
+    "inventory_function"  : lambda parsed: \
+        inventory_varnish4(parsed, "backend", ["fail", "unhealthy", "busy"]),
+    "check_function"      : lambda item, params, parsed: \
+        check_varnish4_stats(item, params, parsed, "backend", None),
+    "service_description" : "Varnish4 Backend",
+    "group"               : "varnish4_backend",
+    "has_perfdata"        : True,
+}
+
+
+#.
+#   .--fetch---------------------------------------------------------------.
+#   |                        __      _       _                             |
+#   |                       / _| ___| |_ ___| |__                          |
+#   |                      | |_ / _ \ __/ __| '_ \                         |
+#   |                      |  _|  __/ || (__| | | |                        |
+#   |                      |_|  \___|\__\___|_| |_|                        |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+
+check_info["varnish4.fetch"] = {
+    "inventory_function"  : lambda parsed: \
+        inventory_varnish4(parsed, "fetch", ["1xx", "204", "304", "bad", "eof", "failed", "length"]),
+    "check_function"      : lambda item, params, parsed: \
+        check_varnish4_stats(item, params, parsed, "fetch", None),
+    "service_description" : "Varnish4 Fetch",
+    "group"               : "varnish4_fetch",
+    "has_perfdata"        : True,
+}
+
+
+#.
+#   .--ESI-----------------------------------------------------------------.
+#   |                           _____ ____ ___                             |
+#   |                          | ____/ ___|_ _|                            |
+#   |                          |  _| \___ \| |                             |
+#   |                          | |___ ___) | |                             |
+#   |                          |_____|____/___|                            |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+
+factory_settings["varnish4_esi_default_levels"] = {
+    'errors': (1.0, 2.0)
+}
+
+
+check_info["varnish4.esi"] = {
+    "inventory_function"      : lambda parsed: \
+        inventory_varnish4(parsed, "esi", ["errors"]),
+    "check_function"          : lambda item, params, parsed: \
+        check_varnish4_stats(item, params, parsed, "esi", None),
+    "service_description"     : "Varnish4 ESI",
+    "default_levels_variable" : "varnish4_esi_default_levels",
+    "group"                   : "varnish4_esi",
+    "has_perfdata"            : True,
+}
+
+
+#.
+#   .--objects-------------------------------------------------------------.
+#   |                         _     _           _                          |
+#   |                    ___ | |__ (_) ___  ___| |_ ___                    |
+#   |                   / _ \| '_ \| |/ _ \/ __| __/ __|                   |
+#   |                  | (_) | |_) | |  __/ (__| |_\__ \                   |
+#   |                   \___/|_.__// |\___|\___|\__|___/                   |
+#   |                            |__/                                      |
+#   '----------------------------------------------------------------------'
+
+
+check_info["varnish4.objects"] = {
+    "inventory_function"  : lambda parsed: \
+        inventory_varnish4(parsed, "n", ["expired", "lru_nuked"]),
+    "check_function"      : lambda item, params, parsed: \
+        check_varnish4_stats(item, params, parsed, "n", ["expired", "lru_"]),
+    "service_description" : "Varnish4 Objects",
+    "group"               : "varnish4_objects",
+    "has_perfdata"        : True,
+}
+
+
+#.
+#   .--worker--------------------------------------------------------------.
+#   |                                     _                                |
+#   |                 __      _____  _ __| | _____ _ __                    |
+#   |                 \ \ /\ / / _ \| '__| |/ / _ \ '__|                   |
+#   |                  \ V  V / (_) | |  |   <  __/ |                      |
+#   |                   \_/\_/ \___/|_|  |_|\_\___|_|                      |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+
+check_info["varnish4.worker"] = {
+    "inventory_function"  : lambda parsed: \
+        inventory_varnish4(parsed, "n", ["wrk_failed", "wrk_queued", "wrk_drop"]),
+    "check_function"      : lambda item, params, parsed: \
+        check_varnish4_stats(item, params, parsed, "n", ["wrk"]),
+    "service_description" : "Varnish4 Worker",
+    "group"               : "varnish4_worker",
+    "has_perfdata"        : True,
+}
+
+
+#.
+#   .--cache hit ratio-----------------------------------------------------.
+#   |                  _            _     _ _               _   _          |
+#   |    ___ __ _  ___| |__   ___  | |__ (_) |_   _ __ __ _| |_(_) ___     |
+#   |   / __/ _` |/ __| '_ \ / _ \ | '_ \| | __| | '__/ _` | __| |/ _ \    |
+#   |  | (_| (_| | (__| | | |  __/ | | | | | |_  | | | (_| | |_| | (_) |   |
+#   |   \___\__,_|\___|_| |_|\___| |_| |_|_|\__| |_|  \__,_|\__|_|\___/    |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+
+factory_settings["varnish4_cache_hit_ratio_default_levels"] = {
+    'levels_lower': (70.0, 60.0)
+}
+
+
+check_info["varnish4.cache_hit_ratio"] = {
+    "inventory_function"      : lambda parsed: \
+        inventory_varnish4(parsed, "cache", ["hit", "miss"]),
+    "check_function"          : lambda item, params, parsed: \
+        check_varnish4_ratio(item, params, parsed, 'cache', ('hit', 'miss', 'cache_hit_ratio')),
+    "default_levels_variable" : "varnish4_cache_hit_ratio_default_levels",
+    "service_description"     : "Varnish4 Cache Hit Ratio",
+    "group"                   : "varnish4_cache_hit_ratio",
+    "has_perfdata"            : True,
+}
+
+
+#.
+#   .--backend success ratio-----------------------------------------------.
+#   |                _                _                  _                 |
+#   |               | |__   __ _  ___| | _____ _ __   __| |                |
+#   |               | '_ \ / _` |/ __| |/ / _ \ '_ \ / _` |                |
+#   |               | |_) | (_| | (__|   <  __/ | | | (_| |                |
+#   |               |_.__/ \__,_|\___|_|\_\___|_| |_|\__,_|                |
+#   |                                                                      |
+#   |                                                   _   _              |
+#   |       ___ _   _  ___ ___ ___  ___ ___   _ __ __ _| |_(_) ___         |
+#   |      / __| | | |/ __/ __/ _ \/ __/ __| | '__/ _` | __| |/ _ \        |
+#   |      \__ \ |_| | (_| (_|  __/\__ \__ \ | | | (_| | |_| | (_) |       |
+#   |      |___/\__,_|\___\___\___||___/___/ |_|  \__,_|\__|_|\___/        |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+
+factory_settings["varnish4_backend_success_ratio_default_levels"] = {
+    'levels_lower': (70.0, 60.0)
+}
+
+
+def check_varnish4_backend_success_ratio(_no_item, params, parsed):
+    if "backend" in parsed:
+        state = 0
+        ratio = 0.0
+        
+        if parsed["backend"]["req"][0] > 0:
+            ratio = (parsed["backend"]["req"][0] - parsed["backend"]["fail"][0]) / parsed["backend"]["req"][0] * 100
+        infotext = "%.1f%%" % ratio
+        warn, crit = params["levels_lower"]
+        
+        if ratio < crit:
+            state = 2
+        elif ratio < warn:
+            state = 1
+        if state > 0:
+            infotext += " (warn/crit below %.1f%%/%.1f%%)" % (warn, crit)
+        
+        return state, infotext, [("varnish4_backend_success_ratio", ratio, warn, crit)]
+            
+
+check_info["varnish4.backend_success_ratio"] = {
+    "inventory_function"      : lambda parsed: \
+        inventory_varnish4(parsed, "backend", ["fail", "req"]),
+    "check_function"          : check_varnish4_backend_success_ratio,
+    "default_levels_variable" : "varnish4_backend_success_ratio_default_levels",
+    "service_description"     : "Varnish4 Backend Success Ratio",
+    "group"                   : "varnish4_backend_success_ratio",
+    "has_perfdata"            : True,
+}
+#"check_function"          : lambda item, params, parsed: \
+#    check_varnish4_ratio(item, params, parsed, 'backend', ('conn', 'fail', 'varnish4_backend_success_ratio')),
+
+#.
+#   .--worker thread ratio-------------------------------------------------.
+#   |                     _               _   _                        _   |
+#   | __      _____  _ __| | _____ _ __  | |_| |__  _ __ ___  __ _  __| |  |
+#   | \ \ /\ / / _ \| '__| |/ / _ \ '__| | __| '_ \| '__/ _ \/ _` |/ _` |  |
+#   |  \ V  V / (_) | |  |   <  __/ |    | |_| | | | | |  __/ (_| | (_| |  |
+#   |   \_/\_/ \___/|_|  |_|\_\___|_|     \__|_| |_|_|  \___|\__,_|\__,_|  |
+#   |                                                                      |
+#   |                                  _   _                               |
+#   |                        _ __ __ _| |_(_) ___                          |
+#   |                       | '__/ _` | __| |/ _ \                         |
+#   |                       | | | (_| | |_| | (_) |                        |
+#   |                       |_|  \__,_|\__|_|\___/                         |
+#   |                                                                      |
+#   '----------------------------------------------------------------------'
+
+
+factory_settings["varnish4_worker_thread_ratio_default_levels"] = {
+    'levels_lower' : (70.0, 60.0)
+}
+
+
+def check_varnish4_worker_thread_ratio(_no_item, params, parsed):
+    if "n" in parsed:
+        state = 0
+        ratio = 0.0
+
+        if parsed["n"]["wrk_create"][0] > 0:
+            ratio = parsed["n"]["wrk"][0] / parsed["n"]["wrk_create"][0] * 100
+
+        infotext = "%.1f%%" % ratio
+        warn, crit = params["levels_lower"]
+
+        if ratio < crit:
+            state = 2
+        elif ratio < warn:
+            state = 1
+        if state > 0:
+            infotext += " (warn/crit below %.1f%%/%.1f%%)" % (warn, crit)
+
+        return state, infotext, [("varnish4_worker_thread_ratio", ratio, warn, crit)]
+
+
+check_info["varnish4.worker_thread_ratio"] = {
+    "inventory_function"      : lambda parsed: \
+        inventory_varnish4(parsed, "n", ["wrk", "wrk_create"]),
+    "check_function"          : check_varnish4_worker_thread_ratio,
+    "service_description"     : "Varnish Worker Thread Ratio",
+    "default_levels_variable" : "varnish4_worker_thread_ratio_default_levels",
+    "group"                   : "varnish4_worker_thread_ratio",
+    "has_perfdata"            : True,
+}

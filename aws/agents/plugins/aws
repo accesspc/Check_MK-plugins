@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ ! -x /usr/bin/aws ] ; then
+	exit 0
+fi
+if [ ! -e $MK_CONFDIR/aws.cfg ] ; then
+	exit 0
+fi

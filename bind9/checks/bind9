@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+
+def inventory_bind9(info):
+    if len(info):
+        return [(None, {})]
+
+def get_stats(info):
+    label = None
+    stats = {}
+    for e in info:
+        try:
+            value = int(e[-1])
+        except ValueError:
+            label = " ".join(e)
+        else:
+            key = " ".join(e[:-1])
+            stats.setdefault(label, {})[key] = value
+    return stats
+
+def check_bind9(item, params, info):
+    stats = get_stats(info)
+    now = time.time()
+    perfdata = []
+    queries = stats.get("Incoming Queries", {}).items()
+    for r_type, count in stats.get("Name Server Statistics", {}).items():
+        try:
+            r_type = {
+                "queries resulted in successful answer": "SUCCESS",
+                "requested transfers completed": "TRANSFERT",
+                "recursive queries rejected": "REFUSED",
+                "queries resulted in nxrrset": "NXRRSET",
+                "queries resulted in NXDOMAIN": "NXDOMAIN",
+            }[r_type]
+        except KeyError:
+            continue
+        else:
+            queries.append((r_type, count))
+    for r_type, count in queries:
+        timedif, rate = get_counter(
+            "bind9.{0}".format(r_type.lower()),
+            now, count)
+        r_per_minute = int(rate * 60)
+        perfdata.append((r_type, int(rate * 60), 10, 100))
+    return (0, "OK", perfdata)
+
+# from 1.4.0p31.cre/share/check_mk/modules/check_mk_base.py
+def get_counter(countername, this_time, this_val, allow_negative=False, is_rate=False):
+    old_state = get_item_state(countername, None)
+    set_item_state(countername, (this_time, this_val))
+
+    # First time we see this counter? Do not return
+    # any data!
+    if old_state is None:
+        # Do not suppress this check on check_mk -nv
+        # RR@20180516
+        #if opt_dont_submit:
+        #    return 1.0, 0.0
+        raise MKCounterWrapped('Counter initialization')
+
+    last_time, last_val = old_state
+    timedif = this_time - last_time
+    if timedif <= 0: # do not update counter
+        # Do not suppress this check on check_mk -nv
+        # RR@20180516
+        #if opt_dont_submit:
+        #    return 1.0, 0.0
+        raise MKCounterWrapped('No time difference')
+
+    if not is_rate:
+        valuedif = this_val - last_val
+    else:
+        valuedif = this_val
+
+    if valuedif < 0 and not allow_negative:
+        # Do not try to handle wrapper counters. We do not know
+        # wether they are 32 or 64 bit. It also could happen counter
+        # reset (reboot, etc.). Better is to leave this value undefined
+        # and wait for the next check interval.
+        # Do not suppress this check on check_mk -nv
+        # RR@20180516
+        #if opt_dont_submit:
+        #    return 1.0, 0.0
+        raise MKCounterWrapped('Value overflow')
+
+    per_sec = float(valuedif) / timedif
+    return timedif, per_sec
+
+check_info["bind9"] = {
+    "check_function": check_bind9,
+    "inventory_function": inventory_bind9,
+    "service_description": "Bind Statistics",
+    "has_perfdata": True,
+}

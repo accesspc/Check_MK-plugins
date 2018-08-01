@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# (C) 2017 Precedent Communications
+#          Robertas Reiciunas <Robertas.Reiciunas@precedent.com>
+
+# Output fields
+# 0:VMID 1:Name 2:status 3:RAM(MB) 4:BootDisk(GB) 5:PID 6:%CPU 7:%MEM
+
+if which qm >/dev/null ; then
+	echo '<<<proxmox_qemu>>>'
+	qm list | grep -v VMID | while read line
+	do
+		PID=$(echo $line | awk -- '{print $6}')
+		if [ $PID -gt 0 ] ; then
+			DATA=$(top -p $PID -n 1 -b | tail -n 1 | awk -- '{print $9" "$10}')
+		else
+			DATA=""
+		fi
+		echo $line" "$DATA
+	done
+fi

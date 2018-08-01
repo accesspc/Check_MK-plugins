@@ -1,0 +1,12 @@
+{'author': u'Robertas Reiciunas <accesspc@gmail.com',
+ 'description': u'Agent plugin to gather AWS statistics\n',
+ 'download_url': 'https://github.com/HeinleinSupport/check_mk/tree/master/ceph',
+ 'files': {'agents': ['plugins/aws_cloudwatch.ps1'],
+           'checks': ['ceph', 'cephdf', 'cephosd', 'cephosdperf', 'cephperf', 'cephpools', 'cephstatus'],
+           'web': ['plugins/metrics/ceph.py', 'plugins/wato/agent_bakery_ceph.py']},
+ 'name': 'ceph',
+ 'num_files': 11,
+ 'title': u'Ceph statistics',
+ "version": "5.6.3",
+ 'version.min_required': '1.4.0',
+ 'version.packaged': '1.4.0p9'}

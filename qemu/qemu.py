@@ -1,0 +1,42 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+
+# check_mk check f. LSI Controlle
+#
+# 12/2010 Matthias Henze
+# Lizenz: GPL v2
+
+# Example output from agent:
+#<<<qemu>>>
+#      VMID NAME                 STATUS     MEM(MB)    BOOTDISK(GB) PID      CUP  RAM
+
+# inventory
+def inventory_qemu(checkname, info):
+    inventory = []
+    for line in info:
+        if line[2] == "running":  # only VM's running while inventory are monitored !
+            vm = line[0]
+            inventory.append( (vm, None) )
+    return inventory
+
+# check
+def check_qemu(item, param, info):
+    for line in info:
+        perfdata = []
+        if line[0] == item:
+            name = line[1]
+            status = line[2]
+            ram = line[4]
+            infotext = "%s  (id: %s, name: %s ram: %s MB)" % (status, item, name, ram)
+            if status == "running":
+                perfdata.append( ( "CPU%", int(round(float(line[6]))) ) )
+                perfdata.append( ( "RAM%", int(round(float(line[7]))) ) )
+                return (0, "OK - status is " + infotext, perfdata)
+            else:
+                return (2, "CRITICAL - status is " + infotext, perfdata)
+    return (3, "UNKNOWN - VM %s not found in agent output" % item) 
+
+# declare the check to Check_MK
+check_info['qemu'] = \
+        (check_qemu, "QEMU VM %s", 1, inventory_qemu)
+

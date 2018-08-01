@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Exit immediatelly, if returned non-zero
+set -e
+
+# Bind9 / named stats file location
+stats=/var/cache/bind/named.stats
+
+echo -n > $stats
+rndc stats
+
+if [ $? -eq 0 ]; then
+	echo "<<<bind9>>>"
+	grep -v '^\[' $stats | \
+	 grep -v '^---' | \
+	 grep -v '^+++' | \
+	 sed -e 's@^++ \(.*\) ++$@\1@' | \
+	 sed -e 's@^ *\([0-9]*\) \(.*\)$@\2 \1@g'
+fi
