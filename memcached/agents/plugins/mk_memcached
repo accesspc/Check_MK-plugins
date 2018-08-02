@@ -91,12 +91,29 @@ def try_detect_servers():
             address = '::1'
 
         results.append((address, port))
+    
+    # scan for unix sockets
+    for line in os.popen('ss -l -x | grep memcached').readlines():
+        parts = line.split()
+
+        # socket file must contain memcache
+        if parts[4].find('memcache') == -1:
+            continue
+        
+        # append to results with port number 0
+        results.append((parts[4], 0))
 
     return results
 
 def netcat(address, port, command):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((address, port))
+    # port 0 is for unix sockets
+    if port == 0:
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        s.connect(address)
+    else:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((address, port))
+    
     s.sendall('%s\r\n' % command)
     s.shutdown(socket.SHUT_WR)
     res = ''
@@ -121,7 +138,11 @@ for server in instances:
     else:
         address = server['address']
         port = server['port']
-    print '[%s:%s]' % (address, port)
+    # trim address for unix sockets
+    if port == 0:
+        print '[%s]' % address.split('/')[-1:]
+    else:
+        print '[%s:%s]' % (address, port)
     try:
         for line in netcat(address, port, 'stats').split('\r\n'):
             if line.startswith('STAT '):

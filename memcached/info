@@ -1,0 +1,13 @@
+{'author': u'Robertas Reiciunas <accesspc@gmail.com>',
+ 'description': u'This is a plugin for memcached able to get stats from memcached listening on TCP and UNIX sockets.\n',
+ 'download_url': 'https://github.com/accesspc/Check_MK-plugins/tree/master/memcached',
+ 'files': {'agents': ['bakery/memcached', 'plugins/mk_memcached'],
+           'checks': ['memcached'],
+           'web': ['plugins/metrics/memcached.py',
+                   'plugins/wato/memcached.py']},
+ 'name': 'memcached',
+ 'num_files': 5,
+ 'title': u'memcached',
+ 'version': '3.0.1',
+ 'version.min_required': '1.4.0',
+ 'version.packaged': '1.4.0p9'}
