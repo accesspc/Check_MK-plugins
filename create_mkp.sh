@@ -9,7 +9,7 @@ else
 fi
 
 package=$(echo $1 | tr -d '/')
-version=$(grep '"version"' $package/info | cut -d '"' -f 4)
+version=$(grep "'version'" $package/info | cut -d "'" -f 4)
 homedir=$(pwd)
 
 cd $package
